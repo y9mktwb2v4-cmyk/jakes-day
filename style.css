@@ -290,11 +290,41 @@ button {
 .type-free .type-pill { background: var(--type-free); }
 .type-activity .type-pill { background: var(--type-activity); }
 
-.timer-readout {
+.timer-info {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.timer-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.timer-stat-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+}
+
+.timer-stat-value {
   font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+
+.timer-stat-target {
   color: var(--text-dim);
+}
+
+.timer-stat-value.goal-met {
+  color: var(--ok-bg);
 }
 
 .item-controls {

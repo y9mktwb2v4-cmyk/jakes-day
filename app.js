@@ -233,8 +233,20 @@ function itemCardHTML(item, dateStr) {
       </div>`
     : "";
 
-  const timerReadout = isHomework
-    ? `<span class="timer-readout" data-role="readout" data-timer-state="${timerState}" data-elapsed-base="${row?.elapsed_seconds || 0}" data-started-at="${row?.timer_started_at || ""}">${formatMMSS(elapsed)}</span>`
+  const targetSeconds = (item.expected_minutes || 0) * 60;
+  const goalMet = elapsed >= targetSeconds && targetSeconds > 0;
+  const timerInfo = isHomework
+    ? `
+      <div class="timer-info">
+        <span class="timer-stat">
+          <span class="timer-stat-label">Elapsed</span>
+          <span class="timer-stat-value ${goalMet ? "goal-met" : ""}" data-role="readout" data-timer-state="${timerState}" data-elapsed-base="${row?.elapsed_seconds || 0}" data-started-at="${row?.timer_started_at || ""}" data-target-seconds="${targetSeconds}">${formatMMSS(elapsed)}</span>
+        </span>
+        <span class="timer-stat">
+          <span class="timer-stat-label">Target</span>
+          <span class="timer-stat-value timer-stat-target">${formatMMSS(targetSeconds)}</span>
+        </span>
+      </div>`
     : "";
 
   return `
@@ -244,8 +256,8 @@ function itemCardHTML(item, dateStr) {
         <p class="item-label">${item.label}</p>
         <div class="item-meta">
           <span class="type-pill">${item.type}</span>
-          ${timerReadout}
         </div>
+        ${timerInfo}
       </div>
       ${controls}
     </article>`;
@@ -423,12 +435,15 @@ weekViewEl.addEventListener("click", (e) => {
 // ---------- live timer tick (display only, no writes) ----------
 
 setInterval(() => {
-  document.querySelectorAll('.timer-readout[data-timer-state="running"]').forEach((el) => {
+  document.querySelectorAll('.timer-stat-value[data-timer-state="running"]').forEach((el) => {
     const base = Number(el.dataset.elapsedBase || 0);
     const startedAt = el.dataset.startedAt;
     if (!startedAt) return;
     const running = Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000));
-    el.textContent = formatMMSS(base + running);
+    const elapsed = base + running;
+    el.textContent = formatMMSS(elapsed);
+    const target = Number(el.dataset.targetSeconds || 0);
+    el.classList.toggle("goal-met", target > 0 && elapsed >= target);
   });
 }, 1000);
 
